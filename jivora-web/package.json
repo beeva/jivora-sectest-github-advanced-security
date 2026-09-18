@@ -1,0 +1,27 @@
+{
+  "name": "jivora-web",
+  "version": "1.4.0",
+  "private": true,
+  "description": "Jivora member web app - Next.js App Router",
+  "scripts": {
+    "dev": "next dev -p 4000",
+    "build": "next build",
+    "start": "next start -p 4000"
+  },
+  "dependencies": {
+    "cookie": "0.4.1",
+    "jose": "4.11.0",
+    "lodash": "4.17.15",
+    "marked": "2.0.0",
+    "next": "13.4.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "socket.io-client": "2.3.0",
+    "swr": "1.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "18.11.0",
+    "@types/react": "18.0.25",
+    "typescript": "4.9.3"
+  }
+}

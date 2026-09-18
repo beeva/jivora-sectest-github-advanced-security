@@ -1,0 +1,41 @@
+# Development overlay: each app runs its dev server against bind-mounted source
+# for hot reload, built from the Dockerfile deps stage.
+services:
+  backend:
+    build:
+      context: ./Jivora-backend
+      target: deps
+    command: npx nodemon server.js
+    environment:
+      NODE_ENV: development
+      PORT: 4001
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - ./Jivora-backend:/app
+      - /app/node_modules
+    ports:
+      - "4001:4001"
+
+  web:
+    build:
+      context: ./jivora-web
+      target: deps
+    command: npm run dev
+    environment:
+      NODE_ENV: development
+      WATCHPACK_POLLING: "true"
+    volumes:
+      - ./jivora-web:/app
+      - /app/node_modules
+
+  admin:
+    build:
+      context: ./jivora-admin
+      target: deps
+    command: yarn dev
+    environment:
+      NODE_ENV: development
+      WATCHPACK_POLLING: "true"
+    volumes:
+      - ./jivora-admin:/app
+      - /app/node_modules

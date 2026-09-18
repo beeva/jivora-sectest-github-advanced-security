@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: jivora-backend-secrets
+  namespace: jivora
+type: Opaque
+stringData:
+  JWT_SECRET: jivora-prod-jwt-4d8a91be2c
+  ENCRYPTION_KEY: a7f3c9d2e5b1486fa0c3d7e9b2f4861c
+  # Reshaped to clear GitHub push protection -- see FINDINGS.md H1.
+  STRIPE_SECRET_KEY: sk_live_REDACTED.PUSH_PROTECTION.see_FINDINGS_H1
+  ANTHROPIC_API_KEY: sk-ant-api03-EXAMPLE-not-a-real-key-for-scanner-testing-AAAA
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jivora-backend
+  namespace: jivora
+  labels:
+    app: jivora-backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: jivora-backend
+  template:
+    metadata:
+      labels:
+        app: jivora-backend
+    spec:
+      hostNetwork: true
+      hostPID: true
+      automountServiceAccountToken: true
+      containers:
+        - name: backend
+          image: jivora/backend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 7002
+          securityContext:
+            privileged: true
+            runAsUser: 0
+            runAsNonRoot: false
+            allowPrivilegeEscalation: true
+            readOnlyRootFilesystem: false
+            capabilities:
+              add: ["SYS_ADMIN", "NET_ADMIN"]
+          envFrom:
+            - secretRef:
+                name: jivora-backend-secrets
+          env:
+            - name: DB_HOST
+              value: jivora-postgres
+            - name: DB_SSL
+              value: "false"
+          volumeMounts:
+            - name: docker-sock
+              mountPath: /var/run/docker.sock
+            - name: phi-uploads
+              mountPath: /app/public/uploads
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 7002
+            initialDelaySeconds: 20
+      volumes:
+        - name: docker-sock
+          hostPath:
+            path: /var/run/docker.sock
+        - name: phi-uploads
+          hostPath:
+            path: /mnt/jivora/uploads
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jivora-backend
+  namespace: jivora
+spec:
+  type: LoadBalancer
+  selector:
+    app: jivora-backend
+  ports:
+    - port: 7002
+      targetPort: 7002
