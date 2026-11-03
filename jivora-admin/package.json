@@ -11,7 +11,7 @@
   "dependencies": {
     "axios": "0.21.0",
     "crypto-js": "3.3.0",
-    "highcharts": "9.3.3",
+    "highcharts": "11.4.9",
     "jsonwebtoken": "8.5.1",
     "lodash": "4.17.15",
     "next": "13.4.0",
